@@ -415,15 +415,27 @@ geocoderMobile.on('result', async (e) => {
             fetch(`Text/status/${status}.html`).then(res => res.text()),
             fetch(`Text/recommendation/${recommendation}.html`).then(res => res.text())
         ]);
-
-        document.getElementById('status-content').innerHTML = statusHTML;
-        document.getElementById('recommendation-content').innerHTML = recommendationHTML;
+    
+        // Insert into mobile popup
+        document.getElementById('mobile-popup-status').innerHTML = statusHTML;
+        document.getElementById('mobile-popup-recommendation').innerHTML = recommendationHTML;
+    
+        // Show popup
+        const popup = document.getElementById('mobile-popup');
+        popup.classList.remove('hidden');
     } catch (error) {
-        console.error('Error loading sidebar content:', error);
-        document.getElementById('status-content').innerHTML = `<p>Error loading status information.</p>`;
-        document.getElementById('recommendation-content').innerHTML = `<p>Error loading recommendation information.</p>`;
+        console.error('Error loading popup content:', error);
+        document.getElementById('mobile-popup-status').innerHTML = `<p>Error loading status.</p>`;
+        document.getElementById('mobile-popup-recommendation').innerHTML = `<p>Error loading recommendation.</p>`;
     }
+    
 });
+// === Mobile Popup Close Button === //
+document.getElementById('mobile-popup-close').addEventListener('click', () => {
+    document.getElementById('mobile-popup').classList.add('hidden');
+});
+
+
 // === Clear Marker on Geocoder (search bar) Clear === //
 geocoder.on('clear', function () {
     resetSidebar();
