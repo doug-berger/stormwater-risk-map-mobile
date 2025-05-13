@@ -294,6 +294,136 @@ function resetSidebar() {
         searchMarker = null;
     }
 }
+
+let legend = document.getElementById("legend");
+let inactivityTimer;
+let fadeDuration = 15000; // 15 seconds of inactivity
+
+// Function to show the legend
+function showLegend() {
+  legend.classList.add("visible");
+  resetInactivityTimer();
+}
+
+// Function to hide the legend
+function hideLegend() {
+  legend.classList.remove("visible");
+}
+
+// Reset the inactivity timer
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(hideLegend, fadeDuration); // Hide after 15 seconds
+}
+
+// Function to check if screen width is mobile-sized
+function isMobile() {
+  return window.innerWidth <= 768;
+}
+
+// Add event listener for interactions (touchstart, click, or mousemove) for mobile screens
+function addInteractionListeners() {
+  if (isMobile()) {
+    map.on('touchstart', function() {
+      showLegend();
+    });
+    map.on('click', function() {
+      showLegend();
+    });
+    map.on('mousemove', function() {
+      showLegend();
+    });
+  }
+}
+
+// Remove interaction listeners if screen is not mobile-sized
+function removeInteractionListeners() {
+  map.off('touchstart');
+  map.off('click');
+  map.off('mousemove');
+}
+
+// On page load, check if we're on mobile size
+if (isMobile()) {
+  addInteractionListeners();
+} else {
+  removeInteractionListeners();
+}
+
+// Optionally, add resize event listener to check for screen size changes
+window.addEventListener('resize', function() {
+  if (isMobile()) {
+    addInteractionListeners(); // Add interaction listeners when resizing to mobile
+  } else {
+    removeInteractionListeners(); // Remove interaction listeners when resizing to larger screen
+  }
+});
+
+// === Mobile Geocoder === //
+const geocoderMobile = new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken,
+    mapboxgl: mapboxgl,
+    placeholder: 'Enter your address here',
+    bbox: nycBbox,
+    marker: false,
+    proximity: {
+        longitude: -73.935242,
+        latitude: 40.730610
+    }
+  });
+  
+  // Mobile search bar
+  document.getElementById('geocoder-container-mobile').appendChild(geocoderMobile.onAdd(map));
+  
+// === Mobile Geocoder Result Handler ===
+geocoderMobile.on('result', async (e) => {
+    const [lng, lat] = e.result.center;
+
+    if (!moderateFloodData || !extremeFloodData || !hundredYearFloodData) {
+        console.error('Flood data is not loaded yet.');
+        document.getElementById('flood-risk-text').textContent = 'Flood data is still loading. Please try again later.';
+        return;
+    }
+
+    map.flyTo({
+        center: [lng, lat],
+        zoom: 15,
+        speed: 0.4,
+        curve: 1.8,
+        essential: true,
+    });
+
+    if (searchMarker) {
+        searchMarker.remove();
+    }
+
+    searchMarker = new mapboxgl.Marker({ color: '#0E34A0' })
+        .setLngLat([lng, lat])
+        .addTo(map);
+
+    const { status, inHundredYear } = getFloodRiskStatus([lng, lat], moderateFloodData, extremeFloodData, hundredYearFloodData);
+    const { recommendation } = getFloodRiskRec([lng, lat], moderateFloodData, extremeFloodData, hundredYearFloodData);
+
+    const spinnerHTML = '<div class="spinner"></div>';
+
+    document.getElementById('status-content').innerHTML = spinnerHTML;
+    document.getElementById('recommendation-content').innerHTML = spinnerHTML;
+    
+
+    try {
+        const [statusHTML, recommendationHTML] = await Promise.all([
+            fetch(`Text/status/${status}.html`).then(res => res.text()),
+            fetch(`Text/recommendation/${recommendation}.html`).then(res => res.text())
+        ]);
+
+        document.getElementById('status-content').innerHTML = statusHTML;
+        document.getElementById('recommendation-content').innerHTML = recommendationHTML;
+    } catch (error) {
+        console.error('Error loading sidebar content:', error);
+        document.getElementById('status-content').innerHTML = `<p>Error loading status information.</p>`;
+        document.getElementById('recommendation-content').innerHTML = `<p>Error loading recommendation information.</p>`;
+    }
+});
 // === Clear Marker on Geocoder (search bar) Clear === //
 geocoder.on('clear', function () {
     resetSidebar();

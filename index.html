@@ -24,7 +24,18 @@
 
 <body>
     <div id="banner"> <!--add a banner here id desired-->
+        <div id="geocoder-container-mobile"></div>
+        <div id="banner-text-wrapper">
+            <div id="banner-header">
+                <h1>Understanding Your Flood Risk</h1>
+                <div id="banner-header-subtitle">
+                    <p>Use the search bar to find your property or business, and get customized resources
+                        to help you protect your livelihood.</p>
+                    <hr class="subtitle-underline" />
+                </div>
 
+            </div>
+        </div>
     </div>
     <div id="flex-box">
         <div id="sidebar-container">
@@ -47,7 +58,8 @@
                 <div id="sidebar-content">
                     <div id="flood-risk-info">
                         <div id="status-content">
-                            <p id="flood-risk-text">Search for a property on the map to see flood risk information.</p>
+                            <p id="flood-risk-text">Search for a property on the map to see flood risk information.
+                            </p>
                         </div>
                     </div>
                     <div id="flood-risk-resources">
@@ -64,31 +76,33 @@
         <div id="map-container"></div>
 
         <div id="legend">
-            <div class="legend-item">
-                <label class="legend-label">
-                    <input type="checkbox" id="toggle-moderate" checked>
-                    <span class="legend-color" style="background-color: #3399FF;"></span>
-                    <span class="legend-text"> Moderate Stormwater Flood Scenario </span>
-                </label>
-                <div class="legend-subtext">2.13 inches of rain per hour with current sea levels.</div>
-            </div>
+            <div class="legend-inner">
+                <div class="legend-item">
+                    <label class="legend-label">
+                        <input type="checkbox" id="toggle-moderate" checked>
+                        <span class="legend-color" style="background-color: #3399FF;"></span>
+                        <span class="legend-text"> Moderate Stormwater Flood Scenario </span>
+                    </label>
+                    <div class="legend-subtext">2.13 inches of rain per hour with current sea levels.</div>
+                </div>
 
-            <div class="legend-item">
-                <label class="legend-label">
-                    <input type="checkbox" id="toggle-extreme" checked>
-                    <span class="legend-color" style="background-color: #fde74c;"></span>
-                    <span class="legend-text"> Extreme Stormwater Flood Scenario </span>
-                </label>
-                <div class="legend-subtext">3.66 inches of rain per hour with current sea levels.</div>
-            </div>
+                <div class="legend-item">
+                    <label class="legend-label">
+                        <input type="checkbox" id="toggle-extreme" checked>
+                        <span class="legend-color" style="background-color: #fde74c;"></span>
+                        <span class="legend-text"> Extreme Stormwater Flood Scenario </span>
+                    </label>
+                    <div class="legend-subtext">3.66 inches of rain per hour with current sea levels.</div>
+                </div>
 
-            <div class="legend-item">
-                <label class="legend-label">
-                    <input type="checkbox" id="toggle-hundred">
-                    <span class="legend-color" style="background-color: #C3423F;"></span>
-                    <span class="legend-text"> 100-Year Floodplain </span>
-                </label>
-                <div class="legend-subtext">FEMA-defined zone with a 1% annual chance of flooding.</div>
+                <div class="legend-item">
+                    <label class="legend-label">
+                        <input type="checkbox" id="toggle-hundred">
+                        <span class="legend-color" style="background-color: #C3423F;"></span>
+                        <span class="legend-text"> 100-Year Floodplain </span>
+                    </label>
+                    <div class="legend-subtext">FEMA-defined zone with a 1% annual chance of flooding.</div>
+                </div>
             </div>
         </div>
 
