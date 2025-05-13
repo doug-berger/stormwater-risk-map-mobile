@@ -442,3 +442,28 @@ map.on('click', () => {
 map.on('click', function () {
     resetSidebar();
 });
+
+// === Fade out banner on interaction === //
+
+let bannerFaded = false;
+
+function fadeOutBanner() {
+  if (!bannerFaded) {
+    const bannerWrapper = document.getElementById('banner-text-wrapper');
+    if (bannerWrapper) {
+      bannerWrapper.style.transition = 'opacity 1.5s ease-in-out';
+      bannerWrapper.style.opacity = '0';
+      bannerFaded = true;
+    }
+  }
+}
+
+// Trigger on any interaction
+function setupBannerFadeOnInteraction() {
+  ['click', 'drag','touchstart', 'scroll', 'keydown'].forEach(eventType => {
+    window.addEventListener(eventType, fadeOutBanner, { once: true });
+  });
+}
+
+setupBannerFadeOnInteraction();
+
