@@ -468,7 +468,8 @@ a:hover {
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 2.5rem 1rem 1rem; /* Adjust padding for mobile */
+        padding: 2.5rem 1rem 1rem;
+        /* Adjust padding for mobile */
         opacity: 1;
         transition: opacity 1.5s ease-in-out;
     }
@@ -530,10 +531,11 @@ a:hover {
 
 .mobile-popup {
     position: absolute;
-    bottom: 80px; /* adjust based on layout */
+    bottom: 170px;
+    /* adjust based on layout */
     left: 50%;
     transform: translateX(-50%);
-    max-width: 95%;
+    max-width: 120%;
     background: black;
     opacity: 0.8;
     border-radius: 10px;
@@ -544,28 +546,68 @@ a:hover {
     overflow-y: auto;
     max-height: 50vh;
     transition: opacity 0.5s ease-in-out;
-  }
-  
-  .mobile-popup.hidden {
+}
+
+.mobile-popup.hidden {
     opacity: 0;
     pointer-events: none;
-  }
-  
-  #mobile-popup-close {
+}
+
+#mobile-popup-close {
     background: none;
     color: white;
     border: none;
-    font-size: 1.5em;
+    font-size: 2em;
     float: right;
     cursor: pointer;
-  }
-  
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translate(-50%, 10px); }
-    to { opacity: 1; transform: translate(-50%, 0); }
-  }
-  
+}
+
+/* Scrollbar track (the area behind the thumb) */
+.mobile-popup::-webkit-scrollbar {
+    width: 8px;
+    /* or whatever size you prefer */
+}
+
+/* Scrollbar thumb (the part you drag) */
+.mobile-popup::-webkit-scrollbar-thumb {
+    background-color: #879297;
+    /* light grey */
+    border-radius: 10px;
+    border: 2px solid black;
+    /* adds space around thumb if sidebar is dark */
+}
+
+/* Optional: scrollbar corner */
+.mobile-popup::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Optional: Scrollbar track */
+.mobile-popup::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+/* for Firefox */
+/* Note: Firefox uses a different syntax for custom scrollbars */
+.mobile-popup {
+    scrollbar-width: thin;
+    scrollbar-color: #879297 transparent;
+}
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
 
 
 

@@ -68,14 +68,14 @@ function getFloodRiskStatus(lngLat, moderateData, extremeData, hundredYearData) 
 
     let status;
 
-    if (inExtreme && inHundredYear) {
-        status = 'extreme-hundred';
-    } else if (inModerate && inHundredYear) {
+    if (inModerate && inHundredYear) {
         status = 'moderate-hundred';
-    } else if (inExtreme) {
-        status = 'extreme';
+    } else if (inExtreme && inHundredYear) {
+        status = 'extreme-hundred';
     } else if (inModerate) {
         status = 'moderate';
+    } else if (inExtreme) {
+        status = 'extreme';
     } else if (inHundredYear) {
         status = 'hundred';
     } else {
@@ -107,21 +107,21 @@ function getFloodRiskRec(lngLat, moderateData, extremeData, hundredYearData) {
 
     let recommendation;
 
-    if (inExtreme && inHundredYear) {
-        recommendation = 'extreme-hundred';
-    } else if (inModerate && inHundredYear) {
+    if (inModerate && inHundredYear) {
         recommendation = 'moderate-hundred';
-    } else if (inExtreme) {
-        recommendation = 'extreme';
+    } else if (inExtreme && inHundredYear) {
+        recommendation = 'extreme-hundred';
     } else if (inModerate) {
         recommendation = 'moderate';
+    } else if (inExtreme) {
+        recommendation = 'extreme';
     } else if (inHundredYear) {
         recommendation = 'hundred';
     } else {
         recommendation = 'low-risk';
     }
 
-    return { recommendation };
+    return { recommendation, inHundredYear };
 }
 
 
@@ -158,7 +158,7 @@ geocoder.on('result', async (e) => {
 
     document.getElementById('status-content').innerHTML = spinnerHTML;
     document.getElementById('recommendation-content').innerHTML = spinnerHTML;
-    
+
 
     try {
         const [statusHTML, recommendationHTML] = await Promise.all([
@@ -301,62 +301,62 @@ let fadeDuration = 15000; // 15 seconds of inactivity
 
 // Function to show the legend
 function showLegend() {
-  legend.classList.add("visible");
-  resetInactivityTimer();
+    legend.classList.add("visible");
+    resetInactivityTimer();
 }
 
 // Function to hide the legend
 function hideLegend() {
-  legend.classList.remove("visible");
+    legend.classList.remove("visible");
 }
 
 // Reset the inactivity timer
 function resetInactivityTimer() {
-  clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(hideLegend, fadeDuration); // Hide after 15 seconds
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(hideLegend, fadeDuration); // Hide after 15 seconds
 }
 
 // Function to check if screen width is mobile-sized
 function isMobile() {
-  return window.innerWidth <= 768;
+    return window.innerWidth <= 768;
 }
 
 // Add event listener for interactions (touchstart, click, or mousemove) for mobile screens
 function addInteractionListeners() {
-  if (isMobile()) {
-    map.on('touchstart', function() {
-      showLegend();
-    });
-    map.on('click', function() {
-      showLegend();
-    });
-    map.on('mousemove', function() {
-      showLegend();
-    });
-  }
+    if (isMobile()) {
+        map.on('touchstart', function () {
+            showLegend();
+        });
+        map.on('click', function () {
+            showLegend();
+        });
+        map.on('mousemove', function () {
+            showLegend();
+        });
+    }
 }
 
 // Remove interaction listeners if screen is not mobile-sized
 function removeInteractionListeners() {
-  map.off('touchstart');
-  map.off('click');
-  map.off('mousemove');
+    map.off('touchstart');
+    map.off('click');
+    map.off('mousemove');
 }
 
 // On page load, check if we're on mobile size
 if (isMobile()) {
-  addInteractionListeners();
+    addInteractionListeners();
 } else {
-  removeInteractionListeners();
+    removeInteractionListeners();
 }
 
 // Optionally, add resize event listener to check for screen size changes
-window.addEventListener('resize', function() {
-  if (isMobile()) {
-    addInteractionListeners(); // Add interaction listeners when resizing to mobile
-  } else {
-    removeInteractionListeners(); // Remove interaction listeners when resizing to larger screen
-  }
+window.addEventListener('resize', function () {
+    if (isMobile()) {
+        addInteractionListeners(); // Add interaction listeners when resizing to mobile
+    } else {
+        removeInteractionListeners(); // Remove interaction listeners when resizing to larger screen
+    }
 });
 
 // === Mobile Geocoder === //
@@ -370,11 +370,11 @@ const geocoderMobile = new MapboxGeocoder({
         longitude: -73.935242,
         latitude: 40.730610
     }
-  });
-  
-  // Mobile search bar
-  document.getElementById('geocoder-container-mobile').appendChild(geocoderMobile.onAdd(map));
-  
+});
+
+// Mobile search bar
+document.getElementById('geocoder-container-mobile').appendChild(geocoderMobile.onAdd(map));
+
 // === Mobile Geocoder Result Handler ===
 geocoderMobile.on('result', async (e) => {
     const [lng, lat] = e.result.center;
@@ -408,18 +408,18 @@ geocoderMobile.on('result', async (e) => {
 
     document.getElementById('status-content').innerHTML = spinnerHTML;
     document.getElementById('recommendation-content').innerHTML = spinnerHTML;
-    
+
 
     try {
         const [statusHTML, recommendationHTML] = await Promise.all([
             fetch(`Text/status/${status}.html`).then(res => res.text()),
             fetch(`Text/recommendation/${recommendation}.html`).then(res => res.text())
         ]);
-    
+
         // Insert into mobile popup
         document.getElementById('mobile-popup-status').innerHTML = statusHTML;
         document.getElementById('mobile-popup-recommendation').innerHTML = recommendationHTML;
-    
+
         // Show popup
         const popup = document.getElementById('mobile-popup');
         popup.classList.remove('hidden');
@@ -428,7 +428,7 @@ geocoderMobile.on('result', async (e) => {
         document.getElementById('mobile-popup-status').innerHTML = `<p>Error loading status.</p>`;
         document.getElementById('mobile-popup-recommendation').innerHTML = `<p>Error loading recommendation.</p>`;
     }
-    
+
 });
 // === Mobile Popup Close Button === //
 document.getElementById('mobile-popup-close').addEventListener('click', () => {
@@ -460,21 +460,21 @@ map.on('click', function () {
 let bannerFaded = false;
 
 function fadeOutBanner() {
-  if (!bannerFaded) {
-    const bannerWrapper = document.getElementById('banner-text-wrapper');
-    if (bannerWrapper) {
-      bannerWrapper.style.transition = 'opacity 1.5s ease-in-out';
-      bannerWrapper.style.opacity = '0';
-      bannerFaded = true;
+    if (!bannerFaded) {
+        const bannerWrapper = document.getElementById('banner-text-wrapper');
+        if (bannerWrapper) {
+            bannerWrapper.style.transition = 'opacity 1.5s ease-in-out';
+            bannerWrapper.style.opacity = '0';
+            bannerFaded = true;
+        }
     }
-  }
 }
 
 // Trigger on any interaction
 function setupBannerFadeOnInteraction() {
-  ['click', 'drag','touchstart', 'scroll', 'keydown'].forEach(eventType => {
-    window.addEventListener(eventType, fadeOutBanner, { once: true });
-  });
+    ['click', 'drag', 'touchstart', 'scroll', 'keydown'].forEach(eventType => {
+        window.addEventListener(eventType, fadeOutBanner, { once: true });
+    });
 }
 
 setupBannerFadeOnInteraction();
