@@ -175,112 +175,121 @@ geocoder.on('result', async (e) => {
     }
 });
 
-
+// Show loader immediately on page load
+document.getElementById('map-loader').style.display = 'block';
 // === Load GeoJSON and Add Layers === //
 map.on('load', async () => {
-    const moderateResponse = await fetch('Data/Moderate_Flood_WGS84_Simple.json');
-    moderateFloodData = await moderateResponse.json();
+    try {
+        const moderateResponse = await fetch('Data/Moderate_Flood_WGS84_Simple.json');
+        moderateFloodData = await moderateResponse.json();
 
-    const extremeResponse = await fetch('Data/Extreme_Flood_noHighTide_Dissolved.geojson');
-    extremeFloodData = await extremeResponse.json();
+        const extremeResponse = await fetch('Data/Extreme_Flood_noHighTide_Dissolved.geojson');
+        extremeFloodData = await extremeResponse.json();
 
-    const hundredYearResponse = await fetch('Data/FEMA_100_Year_Dissolved.json');
-    hundredYearFloodData = await hundredYearResponse.json();
+        const hundredYearResponse = await fetch('Data/FEMA_100_Year_Dissolved.json');
+        hundredYearFloodData = await hundredYearResponse.json();
 
-    map.addSource('moderateFlood', {
-        type: 'geojson',
-        data: moderateFloodData
-    });
+        map.addSource('moderateFlood', {
+            type: 'geojson',
+            data: moderateFloodData
+        });
 
-    map.addSource('extremeFlood', {
-        type: 'geojson',
-        data: extremeFloodData
-    });
+        map.addSource('extremeFlood', {
+            type: 'geojson',
+            data: extremeFloodData
+        });
 
-    map.addSource('HundredYearFlood', {
-        type: 'geojson',
-        data: hundredYearFloodData
-    });
+        map.addSource('HundredYearFlood', {
+            type: 'geojson',
+            data: hundredYearFloodData
+        });
 
-    // logging the data to check if it is loaded correctly
-    console.log(moderateFloodData);
-    console.log(extremeFloodData);
-    console.log(hundredYearFloodData);
-    console.log(moderateFloodData.features[0].geometry.coordinates);
+        // logging the data to check if it is loaded correctly
+        console.log(moderateFloodData);
+        console.log(extremeFloodData);
+        console.log(hundredYearFloodData);
+        console.log(moderateFloodData.features[0].geometry.coordinates);
 
+        map.addLayer({
+            id: 'extremeFloodLayer',
+            type: 'fill',
+            source: 'extremeFlood',
+            paint: {
+                'fill-color': '#fde74c',
+                'fill-opacity': 0.3,
+                'fill-outline-color': '#fde74c'
+            }
+        });
 
-    map.addLayer({
-        id: 'extremeFloodLayer',
-        type: 'fill',
-        source: 'extremeFlood',
-        paint: {
-            'fill-color': '#fde74c',
-            'fill-opacity': 0.3,
-            'fill-outline-color': '#fde74c'
-        }
-    });
+        map.addLayer({
+            id: 'moderateFloodLayer',
+            type: 'fill',
+            source: 'moderateFlood',
+            paint: {
+                'fill-color': '#3399FF',
+                'fill-opacity': 0.5,
+                'fill-outline-color': '#3399FF'
+            }
+        });
 
-    map.addLayer({
-        id: 'moderateFloodLayer',
-        type: 'fill',
-        source: 'moderateFlood',
-        paint: {
-            'fill-color': '#3399FF',
-            'fill-opacity': 0.5,
-            'fill-outline-color': '#3399FF'
-        }
-    });
+        map.addLayer({
+            id: 'HundredYearFloodLayer',
+            type: 'fill',
+            source: 'HundredYearFlood',
+            paint: {
+                'fill-color': '#C3423F',
+                'fill-opacity': 0.2,
+                'fill-outline-color': '#C3423F'
+            }
+        });
 
-    map.addLayer({
-        id: 'HundredYearFloodLayer',
-        type: 'fill',
-        source: 'HundredYearFlood',
-        paint: {
-            'fill-color': '#C3423F',
-            'fill-opacity': 0.2,
-            'fill-outline-color': '#C3423F'
-        }
-    });
+        map.addLayer({
+            id: 'HundredYearFloodOutline',
+            type: 'line',
+            source: 'HundredYearFlood',
+            paint: {
+                'line-color': '#C3423F',
+                'line-opacity': 0.6,
+                'line-width': 1
+            }
+        });
 
-    map.addLayer({
-        id: 'HundredYearFloodOutline',
-        type: 'line',
-        source: 'HundredYearFlood',
-        paint: {
-            'line-color': '#C3423F',
-            'line-opacity': 0.6,
-            'line-width': 1
-        }
-    });
+        // Ensure 'settlement-subdivision-label' is on top of all flood layers
+        map.moveLayer('settlement-subdivision-label');
 
-    // Ensure 'settlement-subdivision-label' is on top of all flood layers
-    map.moveLayer('settlement-subdivision-label');
+        // Ensure 'road-label-simple' is above the data layers but below 'settlement-subdivision-label'
+        map.moveLayer('road-label-simple', 'settlement-subdivision-label'); // Place it below settlement-subdivision-label
 
-    // Ensure 'road-label-simple' is above the data layers but below 'settlement-subdivision-label'
-    map.moveLayer('road-label-simple', 'settlement-subdivision-label'); // Place it below settlement-subdivision-label
+        // Ensure labels appear above data layers and move 'settlement-subdivision-label' first
+        map.moveLayer('settlement-subdivision-label', 'HundredYearFloodOutline'); // Ensure it is above all data layers
 
-    // Ensure labels appear above data layers and move 'settlement-subdivision-label' first
-    map.moveLayer('settlement-subdivision-label', 'HundredYearFloodOutline'); // Ensure it is above all data layers
+        // === Add event listeners for checkboxes === //
+        document.getElementById('toggle-moderate').addEventListener('change', (e) => {
+            map.setLayoutProperty('moderateFloodLayer', 'visibility', e.target.checked ? 'visible' : 'none');
+        });
 
-    // === Add event listeners for checkboxes === //
-    document.getElementById('toggle-moderate').addEventListener('change', (e) => {
-        map.setLayoutProperty('moderateFloodLayer', 'visibility', e.target.checked ? 'visible' : 'none');
-    });
+        document.getElementById('toggle-extreme').addEventListener('change', (e) => {
+            map.setLayoutProperty('extremeFloodLayer', 'visibility', e.target.checked ? 'visible' : 'none');
+        });
 
-    document.getElementById('toggle-extreme').addEventListener('change', (e) => {
-        map.setLayoutProperty('extremeFloodLayer', 'visibility', e.target.checked ? 'visible' : 'none');
-    });
+        document.getElementById('toggle-hundred').checked = false;
 
-    document.getElementById('toggle-hundred').checked = false;
+        document.getElementById('toggle-hundred').addEventListener('change', (e) => {
+            map.setLayoutProperty('HundredYearFloodLayer', 'visibility', e.target.checked ? 'visible' : 'none');
+            map.setLayoutProperty('HundredYearFloodOutline', 'visibility', e.target.checked ? 'visible' : 'none');
+        });
 
-    document.getElementById('toggle-hundred').addEventListener('change', (e) => {
-        map.setLayoutProperty('HundredYearFloodLayer', 'visibility', e.target.checked ? 'visible' : 'none');
-        map.setLayoutProperty('HundredYearFloodOutline', 'visibility', e.target.checked ? 'visible' : 'none');
-    });
+        map.setLayoutProperty('HundredYearFloodLayer', 'visibility', 'none');
+        map.setLayoutProperty('HundredYearFloodOutline', 'visibility', 'none');
 
-    map.setLayoutProperty('HundredYearFloodLayer', 'visibility', 'none');
-    map.setLayoutProperty('HundredYearFloodOutline', 'visibility', 'none');
+        // Hide loader after everything is fully added
+        document.getElementById('map-loader').style.display = 'none';
+    } catch (error) {
+        console.error('Error loading flood data:', error);
+        document.getElementById('map-loader').style.display = 'none'; // Hide anyway on error
+    }
 });
+
 
 // === clear marker on geocoder x out === //
 
@@ -478,4 +487,3 @@ function setupBannerFadeOnInteraction() {
 }
 
 setupBannerFadeOnInteraction();
-
